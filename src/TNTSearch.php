@@ -301,16 +301,10 @@ class TNTSearch
      */
     public function getWordlistByKeyword($keyword, $isLastWord = false)
     {
-        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword LIMIT 1";
+        $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 500";
         $stmtWord       = $this->index->prepare($searchWordlist);
+        $stmtWord->bindValue(':keyword', mb_strtolower($keyword)."%");
 
-        if ($this->asYouType && $isLastWord) {
-            $searchWordlist = "SELECT * FROM wordlist WHERE term like :keyword ORDER BY length(term) ASC, num_hits DESC LIMIT 1";
-            $stmtWord       = $this->index->prepare($searchWordlist);
-            $stmtWord->bindValue(':keyword', mb_strtolower($keyword)."%");
-        } else {
-            $stmtWord->bindValue(':keyword', mb_strtolower($keyword));
-        }
         $stmtWord->execute();
         $res = $stmtWord->fetchAll(PDO::FETCH_ASSOC);
 
